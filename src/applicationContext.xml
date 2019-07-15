@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<!--开启属性注入注解-->
+	<context:annotation-config/>
+	<!-- 引入hibernate配置文件 -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<!-- 引入hibernate的配置文件 -->
+		<property name="configLocation" value="classpath:hibernate.cfg.xml"/>
+	</bean>
+
+	<!--配置Action-->
+	<bean id="userAction" class="top.zhangmingke.crm.web.action.UserAction" scope="prototype">
+		<property name="userService" ref="userService"/>
+	</bean>
+	<bean id="customerAction" class="top.zhangmingke.crm.web.action.CustomerAction" scope="prototype">
+		<property name="customerService" ref="customerService"/>
+	</bean>
+	<bean id="baseDictAction" class="top.zhangmingke.crm.web.action.BaseDictAction" scope="prototype">
+		<property name="baseDictService" ref="baseDictService"/>
+	</bean>
+
+	<!--//联系人Action的创建必须是多例的,不然会查询不到所有数据.-->
+	<bean id="linkManAction" class="top.zhangmingke.crm.web.action.LinkManAction" scope="prototype">
+		<property name="linkManService" ref="linkManService"/>
+		<property name="customerService" ref="customerService"/>
+ 	</bean>
+	<!--配置Service-->
+	<bean id="userService" class="top.zhangmingke.crm.service.impl.UserServiceImpl" >
+		<property name="userDao" ref="userDao"/>
+	</bean>
+	<bean id="customerService" class="top.zhangmingke.crm.service.impl.CustomerServiceImpl">
+		<property name="customerDao" ref="customerDao"/>
+	</bean>
+	<bean id="baseDictService" class="top.zhangmingke.crm.service.impl.BaseDictServiceImpl">
+		<property name="baseDictDao" ref="baseDictDao"/>
+	</bean>
+	<bean id="linkManService" class="top.zhangmingke.crm.service.impl.LinkManServiceImpl">
+		<property name="linkManDao" ref="linkManDao"/>
+	</bean>
+	<!--配置Dao-->
+	<bean id="userDao" class="top.zhangmingke.crm.dao.impl.UserDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	<bean id="customerDao" class="top.zhangmingke.crm.dao.impl.CustomerDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"/>
+ 	</bean>
+	<bean id="baseDictDao" class="top.zhangmingke.crm.dao.impl.BaseDictDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"/>
+ 	</bean>
+	<bean id="linkManDao" class="top.zhangmingke.crm.dao.impl.LinkManDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"/>
+ 	</bean>
+
+	<!-- 配置客户拜访记录管理相关类============ -->
+	<bean id="saleVisitAction" class="top.zhangmingke.crm.web.action.SaleVisitAction" scope="prototype">
+	</bean>
+
+	<bean id="saleVisitService" class="top.zhangmingke.crm.service.impl.SaleVisitServiceImpl">
+	</bean>
+
+	<bean id="saleVisitDao" class="top.zhangmingke.crm.dao.impl.SaleVisitDaoImpl">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+
+	<!--配置事务管理器-->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
+	<!--开启注解事务-->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+</beans>
